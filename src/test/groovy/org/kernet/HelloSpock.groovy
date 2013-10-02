@@ -1,5 +1,7 @@
+package org.kernet
+
 class HelloSpock extends spock.lang.Specification {
-    def "length of Spock's and his friends' names"() {
+    def "Hello world test to ensure Spock is working"() {
         expect:
         name.size() == length
 
