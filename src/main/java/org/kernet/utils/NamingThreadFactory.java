@@ -1,15 +1,15 @@
-package org.kernet;
+package org.kernet.utils;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class UtilThreadFactory implements ThreadFactory {
+public class NamingThreadFactory implements ThreadFactory {
 
     private static final AtomicInteger counter = new AtomicInteger();
 
     private final String name;
 
-    public UtilThreadFactory(final String name) {
+    public NamingThreadFactory(final String name) {
         this.name = name;
     }
 

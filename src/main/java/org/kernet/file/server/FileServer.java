@@ -9,8 +9,7 @@ import io.netty.channel.udt.UdtChannel;
 import io.netty.channel.udt.nio.NioUdtProvider;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import org.kernet.MsgEchoServerHandler;
-import org.kernet.UtilThreadFactory;
+import org.kernet.utils.NamingThreadFactory;
 
 import java.util.concurrent.ThreadFactory;
 
@@ -23,8 +22,8 @@ public class FileServer {
     }
 
     public void run() throws Exception {
-        final ThreadFactory acceptFactory = new UtilThreadFactory("accept");
-        final ThreadFactory connectFactory = new UtilThreadFactory("connect");
+        final ThreadFactory acceptFactory = new NamingThreadFactory("accept");
+        final ThreadFactory connectFactory = new NamingThreadFactory("connect");
         final NioEventLoopGroup acceptGroup = new NioEventLoopGroup(1,
                 acceptFactory, NioUdtProvider.BYTE_PROVIDER);
         final NioEventLoopGroup connectGroup = new NioEventLoopGroup(1,

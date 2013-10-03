@@ -16,6 +16,7 @@ class FileDumper {
             chunk.writeBytes(buf, 0, bufLen)
 
             ctx.writeAndFlush(chunk)
+
         }
         println "DUMPED"
     }

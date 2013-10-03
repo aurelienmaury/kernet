@@ -10,13 +10,11 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.udt.UdtMessage;
 import io.netty.channel.udt.nio.NioUdtProvider;
 
-import java.io.DataOutputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +30,10 @@ public class GetFileClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
     private FileChannel destFile;
 
     private long start;
+
+    private long fileSize = -1;
+
+    private long bytesWritten = 0;
 
     public GetFileClientHandler(final String filename) {
         super(false);
@@ -70,16 +72,24 @@ public class GetFileClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
         meter.mark(msg.readableBytes());
-
+        //System.out.println("received " + msg.readableBytes());
         if (destFile == null) {
-            destFile = new RandomAccessFile("/tmp/netty.output", "rw").getChannel();
+            fileSize = msg.readLong();
+            String[] path = filename.split(File.separator);
+            destFile = new RandomAccessFile("/tmp/" + path[path.length - 1], "rw").getChannel();
         }
 
         ByteBuffer buf = msg.nioBuffer();
         while (buf.hasRemaining()) {
-            destFile.write(buf);
+            bytesWritten += destFile.write(buf);
         }
+
         msg.release();
+        if (bytesWritten == fileSize) {
+            ctx.close();
+        } else {
+            System.out.println("received "+bytesWritten+" / "+fileSize);
+        }
     }
 
     @Override
@@ -90,6 +100,5 @@ public class GetFileClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
         System.out.println("Writability changed");
-
     }
 }
