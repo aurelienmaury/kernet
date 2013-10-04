@@ -1,4 +1,4 @@
-package org.kernet.file.server;
+package org.kernet.file;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -7,10 +7,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.udt.UdtChannel;
 import io.netty.channel.udt.nio.NioUdtProvider;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
-import org.kernet.utils.NamingThreadFactory;
 
 public class FileServer {
 
@@ -36,7 +33,6 @@ public class FileServer {
                         public void initChannel(final UdtChannel ch)
                                 throws Exception {
                             ch.pipeline().addLast(
-                                    new LoggingHandler(LogLevel.INFO),
                                     new ChunkedWriteHandler(),
                                     new GetFileServerHandler()
                             );

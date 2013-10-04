@@ -1,4 +1,4 @@
-package org.kernet.file.client;
+package org.kernet.file;
 
 
 import com.yammer.metrics.Metrics;
@@ -29,8 +29,6 @@ public class GetFileClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     private FileChannel destFile;
 
-    private long start;
-
     private long fileSize = -1;
 
     private long bytesWritten = 0;
@@ -49,15 +47,7 @@ public class GetFileClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void channelActive(final ChannelHandlerContext ctx) throws Exception {
         log.info("ECHO active " + NioUdtProvider.socketUDT(ctx.channel()).toStringOptions());
-        start = System.currentTimeMillis();
         ctx.writeAndFlush(request);
-    }
-
-    @Override
-    public void exceptionCaught(final ChannelHandlerContext ctx,
-                                final Throwable cause) {
-        log.log(Level.WARNING, "close the connection when an exception is raised", cause);
-        ctx.close();
     }
 
     @Override
@@ -72,7 +62,6 @@ public class GetFileClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     public void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
         meter.mark(msg.readableBytes());
-        //System.out.println("received " + msg.readableBytes());
         if (destFile == null) {
             fileSize = msg.readLong();
             String[] path = filename.split(File.separator);
@@ -87,21 +76,10 @@ public class GetFileClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
         msg.release();
         if (bytesWritten == fileSize) {
             ctx.close();
-
             System.out.println("AVG "+meter.meanRate()+" B/s");
         } else {
             System.out.println("received "+bytesWritten+" / "+fileSize);
         }
 
-    }
-
-    @Override
-    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("Unregistered");
-    }
-
-    @Override
-    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("Writability changed");
     }
 }

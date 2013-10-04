@@ -1,4 +1,4 @@
-package org.kernet.file.server;
+package org.kernet.file;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -18,30 +18,22 @@ public class GetFileServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
-        System.out.println ("Unregistered caught");
-        ctx.close();
-    }
-
-
-
-    @Override
     public void channelReadComplete(final ChannelHandlerContext ctx) throws Exception {
-        RandomAccessFile raf;
+
+        RandomAccessFile fileToSend;
 
         try {
-            raf = new RandomAccessFile(path, "r");
+            fileToSend = new RandomAccessFile(path, "r");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return;
         }
 
-        long fileLength = raf.length();
-        ByteBuf length = Unpooled.buffer(8);
-        length.writeLong(fileLength);
-        ctx.writeAndFlush(length);
+        ctx.writeAndFlush(Unpooled.buffer(8).writeLong(fileToSend.length()));
 
-        ChunkedNioFile nioFile = new ChunkedNioFile(raf.getChannel());
-        ctx.writeAndFlush(nioFile);
+        ChunkedNioFile nioFile = new ChunkedNioFile(fileToSend.getChannel());
+        ctx.writeAndFlush(nioFile)
+                .addListener(ChannelFutureListener.CLOSE)
+                .addListener(ChannelFutureListener.CLOSE_ON_FAILURE);
     }
 }
