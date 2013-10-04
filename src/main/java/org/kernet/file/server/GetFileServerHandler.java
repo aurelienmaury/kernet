@@ -2,9 +2,12 @@ package org.kernet.file.server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.buffer.UnpooledDirectByteBuf;
+import io.netty.channel.*;
 import io.netty.channel.udt.nio.NioUdtProvider;
+import io.netty.handler.stream.ChunkedFile;
+import io.netty.handler.stream.ChunkedNioFile;
+import io.netty.handler.stream.ChunkedWriteHandler;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -17,42 +20,35 @@ public class GetFileServerHandler extends ChannelInboundHandlerAdapter {
 
     private String path = "";
 
+    private boolean useSendFile = true;
+
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf buf = (ByteBuf) msg;
         path += buf.toString(Charset.defaultCharset());
     }
 
+
     @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        System.out.println("channelReadComplete: " + path);
+    public void channelReadComplete(final ChannelHandlerContext ctx) throws Exception {
 
-        File toSend = new File(path);
-        ByteBuf size = Unpooled.buffer(8);
-        size.writeLong(toSend.length());
-        ctx.writeAndFlush(size);
-        NioUdtProvider.socketUDT(ctx.channel()).sendFile(toSend, 0, toSend.length());
+        RandomAccessFile raf;
 
-    }
-
-    void respondFile(String path, ChannelHandlerContext ctx) throws IOException {
-        ByteBuffer buf = ByteBuffer.allocate(CHUNK_RESPONSE_SIZE);
-        int bytesRead;
-
-
-        RandomAccessFile targetFile = new RandomAccessFile(path, "rw");
-        FileChannel targetFileChannel = targetFile.getChannel();
-
-        while ((bytesRead = targetFileChannel.read(buf)) > 0) {
-            ByteBuf chunk = Unpooled.buffer(bytesRead);
-            chunk.writeBytes(buf.array(), 0, bytesRead);
-            ctx.writeAndFlush(chunk);
-            buf.clear();
+        try {
+            raf = new RandomAccessFile(path, "r");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return;
         }
 
-        targetFileChannel.close();
+        long fileLength = raf.length();
+        ByteBuf length = Unpooled.buffer(8);
+        length.writeLong(fileLength);
+        ctx.writeAndFlush(length);
+
+        ChunkedNioFile nioFile = new ChunkedNioFile(raf.getChannel());
+        ctx.writeAndFlush(nioFile);
+
     }
-
-
-
 }

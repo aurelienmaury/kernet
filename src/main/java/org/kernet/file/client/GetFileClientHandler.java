@@ -87,9 +87,12 @@ public class GetFileClientHandler extends SimpleChannelInboundHandler<ByteBuf> {
         msg.release();
         if (bytesWritten == fileSize) {
             ctx.close();
+
+            System.out.println("AVG "+meter.meanRate()+" B/s");
         } else {
             System.out.println("received "+bytesWritten+" / "+fileSize);
         }
+
     }
 
     @Override

@@ -49,11 +49,34 @@ public class FileClient {
 
 
     public static void main(String[] args) throws Exception {
+        //Thread.sleep(5000);
         //new FileClient("localhost", 8080, "/home/amaury/Téléchargements/Jato.zip").run();
         //new FileClient("localhost", 8080, "/home/amaury/Téléchargements/apache-maven-3.1.0-bin.tar.gz").run();
         //new FileClient("localhost", 8080, "/home/amaury/Téléchargements/BlogFR-Statistiques-2013-07.pdf").run();
-        new FileClient("localhost", 8080, "/home/amaury/Téléchargements/ideaIU-130.1619.tar.gz").run();
-        new FileClient("localhost", 8080, "/home/amaury/Téléchargements/ideaIU-132.197.tar.gz").run();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    new FileClient("localhost", 8080, "/Users/amaury/Downloads/ideaIU-132.197.dmg").run();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+/*
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    new FileClient("localhost", 8080, "/Users/amaury/Downloads/VirtualBox-4.2.16-86992-OSX.dmg").run();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+
+        //new FileClient("localhost", 8080, "/home/amaury/Téléchargements/ideaIU-132.197.tar.gz").run();
         /*while(true) {
             Thread.sleep(10);
         }*/

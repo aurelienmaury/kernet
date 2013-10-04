@@ -9,7 +9,7 @@ repositories {
 
 dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.1.7'
-    compile 'io.netty:netty-all:4.0.9.Final'
+    compile 'io.netty:netty-all:4.0.10.Final'
 
     compile 'com.barchart.udt:barchart-udt-bundle:2.3.0'
     compile 'org.slf4j:slf4j-api:1.7.5'

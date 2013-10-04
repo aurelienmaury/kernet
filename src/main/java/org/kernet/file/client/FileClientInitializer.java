@@ -14,7 +14,6 @@ public class FileClientInitializer extends ChannelInitializer<UdtChannel> {
 
     @Override
     public void initChannel(final UdtChannel ch) throws Exception {
-
         ch.pipeline().addLast(new GetFileClientHandler(file));
     }
 
