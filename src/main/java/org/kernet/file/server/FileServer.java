@@ -12,8 +12,6 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import org.kernet.utils.NamingThreadFactory;
 
-import java.util.concurrent.ThreadFactory;
-
 public class FileServer {
 
     private int port;
@@ -22,15 +20,11 @@ public class FileServer {
         this.port = port;
     }
 
-    public void run() throws Exception {
-        final ThreadFactory acceptFactory = new NamingThreadFactory("accept");
-        final ThreadFactory connectFactory = new NamingThreadFactory("connect");
-        final NioEventLoopGroup acceptGroup = new NioEventLoopGroup(1,
-                acceptFactory, NioUdtProvider.BYTE_PROVIDER);
-        final NioEventLoopGroup connectGroup = new NioEventLoopGroup(1,
-                connectFactory, NioUdtProvider.BYTE_PROVIDER);
-        // Configure the server.
+    public void start() throws Exception {
+        final NioEventLoopGroup acceptGroup = createNioEventLoopGroup("accept");
+        final NioEventLoopGroup connectGroup = createNioEventLoopGroup("connect");
 
+        // Configure the server.
         try {
             final ServerBootstrap boot = new ServerBootstrap();
 
@@ -45,14 +39,13 @@ public class FileServer {
                                     new LoggingHandler(LogLevel.INFO),
                                     new ChunkedWriteHandler(),
                                     new GetFileServerHandler()
-                                    );
+                            );
                         }
                     });
             // Start the server.
-            //final ChannelFuture future = boot.bind(port).sync();
-            final ChannelFuture futureAMoi = boot.bind(port).sync();
+            final ChannelFuture f = boot.bind(port).sync();
             // Wait until the server socket is closed.
-            futureAMoi.channel().closeFuture().sync();
+            f.channel().closeFuture().sync();
         } finally {
             // Shut down all event loops to terminate all threads.
             acceptGroup.shutdownGracefully();
@@ -60,14 +53,12 @@ public class FileServer {
         }
     }
 
+    private NioEventLoopGroup createNioEventLoopGroup(final String name) {
+        return new NioEventLoopGroup(1, new NamingThreadFactory(name), NioUdtProvider.BYTE_PROVIDER);
+    }
+
     public static void main(String[] args) throws Exception {
-        int port;
-        if (args.length > 0) {
-            port = Integer.parseInt(args[0]);
-        } else {
-            port = 8080;
-        }
         System.out.println("Starting FileServer");
-        new FileServer(port).run();
+        new FileServer(8080).start();
     }
 }

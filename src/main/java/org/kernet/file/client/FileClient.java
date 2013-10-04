@@ -2,10 +2,8 @@ package org.kernet.file.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.udt.UdtChannel;
 import io.netty.channel.udt.nio.NioUdtProvider;
 import org.kernet.utils.NamingThreadFactory;
 
@@ -23,7 +21,7 @@ public class FileClient {
         this.filename = filename;
     }
 
-    public void run() throws Exception {
+    public void start() throws Exception {
         // Configure the client.
         final ThreadFactory connectFactory = new NamingThreadFactory("connect");
 
@@ -50,14 +48,35 @@ public class FileClient {
 
     public static void main(String[] args) throws Exception {
         //Thread.sleep(5000);
-        //new FileClient("localhost", 8080, "/home/amaury/Téléchargements/Jato.zip").run();
-        //new FileClient("localhost", 8080, "/home/amaury/Téléchargements/apache-maven-3.1.0-bin.tar.gz").run();
-        //new FileClient("localhost", 8080, "/home/amaury/Téléchargements/BlogFR-Statistiques-2013-07.pdf").run();
+        //new FileClient("localhost", 8080, "/home/amaury/Téléchargements/Jato.zip").start();
+        //new FileClient("localhost", 8080, "/home/amaury/Téléchargements/apache-maven-3.1.0-bin.tar.gz").start();
+        //new FileClient("localhost", 8080, "/home/amaury/Téléchargements/BlogFR-Statistiques-2013-07.pdf").start();
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    new FileClient("localhost", 8080, "/Users/amaury/Downloads/ideaIU-132.197.dmg").run();
+                    new FileClient("localhost", 8080, "/home/amaury/Téléchargements/Jato.zip").start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    new FileClient("localhost", 8080, "/home/amaury/Téléchargements/apache-maven-3.1.0-bin.tar.gz").start();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    new FileClient("localhost", 8080, "/home/amaury/Téléchargements/BlogFR-Statistiques-2013-07.pdf").start();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -66,9 +85,9 @@ public class FileClient {
 /*
         new Thread(new Runnable() {
             @Override
-            public void run() {
+            public void start() {
                 try {
-                    new FileClient("localhost", 8080, "/Users/amaury/Downloads/VirtualBox-4.2.16-86992-OSX.dmg").run();
+                    new FileClient("localhost", 8080, "/Users/amaury/Downloads/VirtualBox-4.2.16-86992-OSX.dmg").start();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -76,7 +95,7 @@ public class FileClient {
         }).start();
 
 
-        //new FileClient("localhost", 8080, "/home/amaury/Téléchargements/ideaIU-132.197.tar.gz").run();
+        //new FileClient("localhost", 8080, "/home/amaury/Téléchargements/ideaIU-132.197.tar.gz").start();
         /*while(true) {
             Thread.sleep(10);
         }*/

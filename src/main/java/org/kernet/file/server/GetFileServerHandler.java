@@ -2,26 +2,14 @@ package org.kernet.file.server;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledDirectByteBuf;
 import io.netty.channel.*;
-import io.netty.channel.udt.nio.NioUdtProvider;
-import io.netty.handler.stream.ChunkedFile;
 import io.netty.handler.stream.ChunkedNioFile;
-import io.netty.handler.stream.ChunkedWriteHandler;
-
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
 public class GetFileServerHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Integer CHUNK_RESPONSE_SIZE = 1024;
-
     private String path = "";
-
-    private boolean useSendFile = true;
-
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -29,10 +17,16 @@ public class GetFileServerHandler extends ChannelInboundHandlerAdapter {
         path += buf.toString(Charset.defaultCharset());
     }
 
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        System.out.println ("Unregistered caught");
+        ctx.close();
+    }
+
+
 
     @Override
     public void channelReadComplete(final ChannelHandlerContext ctx) throws Exception {
-
         RandomAccessFile raf;
 
         try {
@@ -49,6 +43,5 @@ public class GetFileServerHandler extends ChannelInboundHandlerAdapter {
 
         ChunkedNioFile nioFile = new ChunkedNioFile(raf.getChannel());
         ctx.writeAndFlush(nioFile);
-
     }
 }
