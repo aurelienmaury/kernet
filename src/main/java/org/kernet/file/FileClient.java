@@ -52,12 +52,12 @@ public class FileClient {
         }
     }
 
-    private static void download(final String desiredPath) {
+    private static void download(final String host, final Integer port, final String desiredPath) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    new FileClient("localhost", 8080, desiredPath).start();
+                    new FileClient(host, port, desiredPath).start();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -66,8 +66,6 @@ public class FileClient {
     }
 
     public static void main(String[] args) throws Exception {
-        download("/home/amaury/Téléchargements/BlogFR-Statistiques-2013-07.pdf");
-        download("/home/amaury/Téléchargements/apache-maven-3.1.0-bin.tar.gz");
-        download("/home/amaury/Téléchargements/Jato.zip");
+        download("localhost", 8080, "/server/readable/path/file.sample");
     }
 }
